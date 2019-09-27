@@ -1,0 +1,48 @@
+﻿@using Toolbox.Data
+@using Toolbox.Components
+@using System.Linq;
+@using System.Security.Claims;
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject DbService db
+@inject NavigationManager NavigationManager
+@page "/"
+
+<div class="level">
+    <div class="level-left">
+        <div class="level-item">
+            <div class="title">Dashboard</div>
+        </div>
+    </div>
+</div>
+
+<div class="tile is-ancestor" style="flex-wrap: wrap;">
+    @if (myWidgets.Any(o => o == "GUID Generator"))
+    {
+        <GuidGenerator />
+    }
+
+    @if (myWidgets.Any(o => o == "JSON Validator"))
+    {
+        <JSONValidator />
+    }
+</div>
+
+@code {
+    private IList<string> myWidgets = new List<string>();
+    private IList<string> availableWidgetIDs = new List<string>() { "GUID Generator", "JSON Validator" };
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity.IsAuthenticated)
+        {
+            myWidgets = db.GetCurrentUser(user).UserWidgets.Select(o => o.Widget).Select(o => o.Id).ToList();
+        }
+        else
+        {
+            NavigationManager.NavigateTo("/Identity/Account/Login");
+        }
+    }
+}

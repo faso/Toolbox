@@ -1,0 +1,37 @@
+﻿@using Newtonsoft.Json.Linq;
+
+<div class="tile is-8 is-parent is-vertical">
+    <div class="tile is-child box">
+        <p class="title">JSON Validator</p>
+        <div class="level">
+            <div class="level-item">
+                <textarea @bind="jsonString" class="textarea @(valid && submitted ? "is-success" : submitted ? "is-danger" : "")" placeholder="Paste your JSON here" rows="10"></textarea>
+            </div>
+        </div>
+
+        <button class="button" @onclick="Validate">Validate</button>
+    </div>
+</div>
+
+@code {
+    private string jsonString = "";
+
+    private bool submitted = false;
+    private bool valid = true;
+
+    private void Validate()
+    {
+        submitted = true;
+        bool isValid = true;
+        try
+        {
+            var boop = JObject.Parse(jsonString);
+        }
+        catch
+        {
+            isValid = false;
+        }
+
+        valid = isValid;
+    }
+}

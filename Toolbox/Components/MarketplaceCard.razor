@@ -1,0 +1,43 @@
+﻿@using Toolbox.Data;
+
+@if (Widget is { })
+{
+    <div class="tile is-4 is-parent">
+        <div class="tile is-child box">
+            <p class="title">@Widget.Id</p>
+            @if (!WidgetsInUse.Any(o => o.Id == Widget.Id))
+            {
+                <button class="button is-success" @onclick="AddHandler">Add to my dashboard</button>
+            }
+            else
+            {
+                <button class="button is-info" disabled>Already on your dashboard!</button>
+                <button class="button is-danger" @onclick="RemoveHandler">Remove</button>
+            }
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public Widget? Widget { get; set; }
+
+    [Parameter]
+    public IList<Widget>? WidgetsInUse { get; set; }
+
+    [Parameter]
+    public EventCallback<string> AddWidget { get; set; }
+
+    private void AddHandler()
+    {
+        AddWidget.InvokeAsync(Widget!.Id);
+    }
+
+    [Parameter]
+    public EventCallback<string> RemoveWidget { get; set; }
+
+    private void RemoveHandler()
+    {
+        RemoveWidget.InvokeAsync(Widget!.Id);
+    }
+}

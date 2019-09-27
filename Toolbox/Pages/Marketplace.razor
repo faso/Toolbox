@@ -1,0 +1,58 @@
+﻿@page "/marketplace"
+@using Toolbox.Data
+@using Toolbox.Components
+@using System.Linq;
+@using System.Security.Claims;
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject DbService db
+@inject NavigationManager NavigationManager
+
+<div class="level">
+    <div class="level-left">
+        <div class="level-item">
+            <div class="title">Marketplace</div>
+        </div>
+    </div>
+</div>
+
+<div class="tile is-ancestor">
+    @foreach (var widget in availableWidgets)
+    {
+        <MarketplaceCard AddWidget="AddWidget" RemoveWidget="RemoveWidget" Widget="widget" WidgetsInUse="myWidgets" />
+    }
+</div>
+
+@code {
+    private IList<Widget> availableWidgets = new List<Widget>();
+    private string userId = "";
+    private IList<Widget> myWidgets = new List<Widget>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity.IsAuthenticated)
+        {
+            myWidgets = db.GetCurrentUser(user).UserWidgets.Select(o => o.Widget).ToList();
+            availableWidgets = (await db.GetAllWidgets()).ToList();
+            userId = user.FindFirst(ClaimTypes.NameIdentifier).Value;
+        }
+        else
+        {
+            NavigationManager.NavigateTo("/Identity/Account/Login");
+        }
+    }
+
+    private async Task AddWidget(string widgetId)
+    {
+        await db.AddWidgetToUser(widgetId, userId);
+        await OnInitializedAsync();
+    }
+
+    private async Task RemoveWidget(string widgetId)
+    {
+        await db.RemoveWidgetFromUser(widgetId, userId);
+        await OnInitializedAsync();
+    }
+}

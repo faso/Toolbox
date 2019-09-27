@@ -1,0 +1,33 @@
+﻿<div class="tile is-4 is-parent  is-vertical">
+    <div class="tile is-child box">
+        <p class="title">GUID Generator</p>
+        <div class="level">
+            <div class="level-item">
+                <input @bind-value="currentGuid" class="input" placeholder="Click the button" />
+            </div>
+            <div class="level-item">
+                <button class="button" @onclick="NewGuid">New GUID</button>
+            </div>
+        </div>
+
+        <label class="checkbox">
+            <input type="checkbox" @bind-value="uppercase" />
+            Uppercase
+        </label>
+    </div>
+</div>
+
+@code {
+    private string currentGuid = "";
+    private bool uppercase = false;
+
+    private void NewGuid()
+    {
+        var newGuid = Guid.NewGuid().ToString();
+
+        if (uppercase)
+            newGuid = newGuid.ToUpper();
+
+        currentGuid = newGuid;
+    }
+}
